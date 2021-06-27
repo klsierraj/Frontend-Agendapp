@@ -1,5 +1,7 @@
 import axios from "axios";
 
+import { getToken } from "./LocalStorageToken";
+
 export const HTTP_VERBS = {
   POST: "post",
   GET: "get",
@@ -16,13 +18,13 @@ const headersConfig = (token) => {
 };
 
 export const requestHttp = async ({
-  method = HTTP_VERBS.POST,
+  method = HTTP_VERBS.GET,
   endpoint,
   data = {}, // body
   params = {},
-  token = "",
 }) => {
   try {
+    const token = getToken();
     const url = process.env.REACT_APP_BASE_URL + endpoint;
     const options = {
       method,

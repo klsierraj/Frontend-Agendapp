@@ -3,7 +3,8 @@ import {
   FETCH_LOGIN_SUCCESS,
   FETCH_LOGIN_REQUEST,
   AUTOLOGIN_FAILURE,
-  AUTOLOGIN_SUCCESS
+  AUTOLOGIN_SUCCESS,
+  AUTHLOGOUT
 } from "./userTypes";
 
 const initialState = {
@@ -43,6 +44,12 @@ const reducer = (state = initialState, action) => {
         ...state,
         isAuth: false,
         splash: false,
+      }
+      case AUTHLOGOUT: 
+      return {
+        ...state,
+        isAuth:false,
+        
       }
     default:
       return state;

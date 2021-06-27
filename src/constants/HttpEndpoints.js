@@ -4,5 +4,6 @@ export const USERS = {
 };
 
 export const TASKS = {
-    getTasks: 'tasks'
+    getTasks: 'tasks',
+    createTask: 'tasks/create'
 };

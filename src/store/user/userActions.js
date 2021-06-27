@@ -5,12 +5,14 @@ import {
   FETCH_LOGIN_REQUEST,
   FETCH_LOGIN_SUCCESS,
   AUTOLOGIN_FAILURE,
-  AUTOLOGIN_SUCCESS
+  AUTOLOGIN_SUCCESS,
+  AUTHLOGOUT
 } from "./userTypes";
 import { getToken, setToken } from '../../utils/LocalStorageToken';
+import {redirect} from '../index'
 
 export const fetchLogin = (credentials = {}) => {
-  return (dispacth) => {
+  return async(dispacth) => {
     dispacth(fetchLoginRequest());
     const callHttp = async (credentials) => {
       try {
@@ -77,5 +79,23 @@ export const autologin = () => {
       }
     };
     callHttp();
+  }
+
+
+}
+
+
+export const startLogout = () => {
+  return ( dispatch ) => {
+
+      localStorage.clear();
+      dispatch( logout() );
+      dispatch(redirect('/'))
+  }
+}
+
+export const logout = () => {
+  return {
+    type: AUTHLOGOUT
   }
 }

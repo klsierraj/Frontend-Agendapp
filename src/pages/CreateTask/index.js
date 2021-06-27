@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Button } from "../../components/Button";
 import { Input } from "../../components/Input";
 import { Topbar } from "../../components/Topbar";
@@ -7,18 +7,16 @@ import DatePicker from "react-date-picker";
 import { useForm, Controller } from "react-hook-form";
 import { Textarea } from "./styles";
 import { FormGroup, LabelError } from "../../globalStyles";
+import { useDispatch, useSelector } from "react-redux";
+import { createTask } from './../../store';
+import moment from "moment";
+import { HTTP_VERBS, requestHttp } from "../../utils/HttpRequest";
 
-const USERS = [
-  { value: 1, label: "Juan" },
-  { value: 2, label: "Luis" },
-  { value: 3, label: "Maria" },
-  { value: 4, label: "Jose" },
-  { value: 5, label: "Baltasar" },
-  { value: 6, label: "Gaspar" },
-];
-
-const CreateTask = ({ title }) => {
+export const CreateTask = ({ title }) => {
   
+  const [listUsers, setListUsers] = useState([]);
+  const dispatch = useDispatch();
+
   const {
     register,
     control,
@@ -29,13 +27,37 @@ const CreateTask = ({ title }) => {
     }
   } = useForm({ mode: 'onChange' });
 
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const {data:users} = await requestHttp({ 
+          method: HTTP_VERBS.GET,
+          endpoint: 'users',
+        });
+      setListUsers(
+        users.map(el => ({value: el._id, label: el.name})) 
+      );
+      } catch (error) {
+        setListUsers({value:null, label: `Error ${error.response.statusText}`});
+      }
+    } 
+    fetchUsers();
+  }, [])
+
+
   const onSubmitCreate = (data) => {
-    console.log("data form", data);
+    console.log(data)
+    const sendData = {
+      ...data,
+      responsible: data.responsible.value,
+      collaborators : data.collaborators.map(el => el.value),
+      dueDateTask: moment(data.dueDateTask).format()
+    }
+    dispatch(createTask(sendData));
+    
   };
 
-  /*useEffect(() => {
-    console.log('formState', formState);
-  }, [formState])*/
+ 
 
   return (
     <Fragment>
@@ -45,7 +67,7 @@ const CreateTask = ({ title }) => {
           <label>Task title</label>
           <Input 
             register={register} 
-            name="taskTitle" 
+            name="title" 
             rules={{ required: true, minLength: 6 }}
             label="Task title" 
             type="text" 
@@ -65,7 +87,7 @@ const CreateTask = ({ title }) => {
               <Select
                 {...field}
                 placeholder="Select responsible"
-                options={USERS}
+                options={listUsers}
               />
             )}
           />
@@ -83,7 +105,7 @@ const CreateTask = ({ title }) => {
                 {...field}
                 isMulti
                 placeholder="Select collaborators"
-                options={USERS}
+                options={listUsers}
               />
             )}
           />
@@ -93,7 +115,7 @@ const CreateTask = ({ title }) => {
           <label>Due Date</label>
           <div>
             <Controller
-              name="dueDateTask"
+              name="due_date"
               control={control}
               defaultValue={new Date()}
               rules={{ required: true }}
